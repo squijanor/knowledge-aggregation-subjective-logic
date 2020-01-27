@@ -1,0 +1,178 @@
+<launch>
+    <param name="/use_sim_time" value="true"/>
+
+    <arg name="robot_0_name" default="robot_0"/>
+    <arg name="robot_0_x_pos" default="-4.0"/>
+    <arg name="robot_0_y_pos" default="4.5"/>
+    <arg name="robot_0_z_pos" default="0.0"/>
+    <arg name="robot_0_yaw" default="0.0"/>
+
+    <arg name="robot_1_name" default="robot_1"/>
+    <arg name="robot_1_x_pos" default="4.0"/>
+    <arg name="robot_1_y_pos" default="-4.5"/>
+    <arg name="robot_1_z_pos" default="0.0"/>
+    <arg name="robot_1_yaw" default=" 0.0"/>
+
+    <arg name="robot_2_name" default="robot_2"/>
+    <arg name="robot_2_x_pos" default="4.0"/>
+    <arg name="robot_2_y_pos" default="4.5"/>
+    <arg name="robot_2_z_pos" default="0.0"/>
+    <arg name="robot_2_yaw" default=" 0.0"/>
+
+    <arg name="robot_3_name" default="robot_3"/>
+    <arg name="robot_3_x_pos" default="-4.0"/>
+    <arg name="robot_3_y_pos" default="-4.5"/>
+    <arg name="robot_3_z_pos" default="0.0"/>
+    <arg name="robot_3_yaw" default=" 0.0"/>
+
+    <arg name="robot_4_name" default="robot_4"/>
+    <arg name="robot_4_x_pos" default="0.5"/>
+    <arg name="robot_4_y_pos" default="0.5"/>
+    <arg name="robot_4_z_pos" default="0.0"/>
+    <arg name="robot_4_yaw" default=" 0.0"/>
+
+    <arg name="gui" default="false"/>
+
+    <arg name="spawn_interval" default="10"/>
+    <arg name="no_of_robots" default="5"/>
+
+    <arg name="sl_operator" default="CBF"/>
+    <arg name="sl_threshold" default="80"/>
+    <arg name="sl_classpath" default=""/>
+    <arg name="use_sl" default="false"/>
+    <arg name="sensor_noise" default="false"/>
+    <arg name="adaptive_scheduling" default="true"/>
+    <arg name="gen_seed" default="100"/>
+    <arg name="false_positive" default="false"/>
+    <arg name="false_positive_prob" default="0"/>
+
+    <param name="/initial_no_of_robots" value="$(arg no_of_robots)"/>
+    <param name="/use_subjective_logic" value="$(arg use_sl)"/>
+
+    <node pkg="rosbag" type="record" name="rosbag_record_all" args="record -o multirobot_cleaning /new_dirt /goal_attained /new_goal"/>
+
+    <!-- launch simulation -->
+    <include file="$(find launch_simulation)/launch/simulation_5_robot.launch">
+        <arg name="gui" value="$(arg gui)"/>
+        <arg name="noise" value="$(arg sensor_noise)"/>
+
+        <arg name="tb3_0" value="$(arg robot_0_name)"/>
+        <arg name="tb3_0_x_pos" value="$(arg robot_0_x_pos)"/>
+        <arg name="tb3_0_y_pos" value="$(arg robot_0_y_pos)"/>
+        <arg name="tb3_0_z_pos" value="$(arg robot_0_z_pos)"/>
+        <arg name="tb3_0_yaw" value="$(arg robot_0_yaw)"/>
+
+        <arg name="tb3_1" value="$(arg robot_1_name)"/>
+        <arg name="tb3_1_x_pos" value="$(arg robot_1_x_pos)"/>
+        <arg name="tb3_1_y_pos" value="$(arg robot_1_y_pos)"/>
+        <arg name="tb3_1_z_pos" value="$(arg robot_1_z_pos)"/>
+        <arg name="tb3_1_yaw" value="$(arg robot_1_yaw)"/>
+
+        <arg name="tb3_2" value="$(arg robot_2_name)"/>
+        <arg name="tb3_2_x_pos" value="$(arg robot_2_x_pos)"/>
+        <arg name="tb3_2_y_pos" value="$(arg robot_2_y_pos)"/>
+        <arg name="tb3_2_z_pos" value="$(arg robot_2_z_pos)"/>
+        <arg name="tb3_2_yaw" value="$(arg robot_2_yaw)"/>
+
+        <arg name="tb3_3" value="$(arg robot_3_name)"/>
+        <arg name="tb3_3_x_pos" value="$(arg robot_3_x_pos)"/>
+        <arg name="tb3_3_y_pos" value="$(arg robot_3_y_pos)"/>
+        <arg name="tb3_3_z_pos" value="$(arg robot_3_z_pos)"/>
+        <arg name="tb3_3_yaw" value="$(arg robot_3_yaw)"/>
+
+        <arg name="tb3_4" value="$(arg robot_4_name)"/>
+        <arg name="tb3_4_x_pos" value="$(arg robot_4_x_pos)"/>
+        <arg name="tb3_4_y_pos" value="$(arg robot_4_y_pos)"/>
+        <arg name="tb3_4_z_pos" value="$(arg robot_4_z_pos)"/>
+        <arg name="tb3_4_yaw" value="$(arg robot_4_yaw)"/>
+
+    </include>
+
+    <!--<include file="$(find launch_simulation)/launch/simulation_single_robot.launch" />-->
+
+    <!-- launch both robots -->
+    <include file="$(find robot_meta)/launch/robot_meta.launch">
+        <arg name="robot_id" value="$(arg robot_0_name)"/>
+        <arg name="x" value="$(arg robot_0_x_pos)"/>
+        <arg name="y" value="$(arg robot_0_y_pos)"/>
+        <arg name="yaw" value="$(arg robot_0_yaw"/>
+        <arg name="bid_topic" value="/bid"/>
+        <arg name="new_goal_topic" value="/new_goal"/>
+        <arg name="confirmation_topic" default="/confirmation"/>
+        <arg name="noise" value="$(arg sensor_noise)"/>
+        <arg name="adaptive_scheduling" value="$(arg adaptive_scheduling)"/>
+        <arg name="false_positive" value="false"/>
+        <arg name="false_positive_prob" default="$(arg false_positive_prob)"/>
+    </include>
+    <include file="$(find robot_meta)/launch/robot_meta.launch">
+        <arg name="robot_id" value="$(arg robot_1_name)"/>
+        <arg name="x" value="$(arg robot_1_x_pos)"/>
+        <arg name="y" value="$(arg robot_1_y_pos)"/>
+        <arg name="yaw" value="$(arg robot_1_yaw"/>
+        <arg name="bid_topic" value="/bid"/>
+        <arg name="new_goal_topic" value="/new_goal"/>
+        <arg name="confirmation_topic" default="/confirmation"/>
+        <arg name="noise" value="$(arg sensor_noise)"/>
+        <arg name="adaptive_scheduling" value="$(arg adaptive_scheduling)"/>
+        <arg name="false_positive" value="false"/>
+        <arg name="false_positive_prob" default="$(arg false_positive_prob)"/>
+    </include>
+    <include file="$(find robot_meta)/launch/robot_meta.launch">
+        <arg name="robot_id" value="$(arg robot_2_name)"/>
+        <arg name="x" value="$(arg robot_2_x_pos)"/>
+        <arg name="y" value="$(arg robot_2_y_pos)"/>
+        <arg name="yaw" value="$(arg robot_2_yaw"/>
+        <arg name="bid_topic" value="/bid"/>
+        <arg name="new_goal_topic" value="/new_goal"/>
+        <arg name="confirmation_topic" default="/confirmation"/>
+        <arg name="noise" value="$(arg sensor_noise)"/>
+        <arg name="false_positive" value="false"/>
+        <arg name="false_positive_prob" default="$(arg false_positive_prob)"/>
+    </include>
+    <include file="$(find robot_meta)/launch/robot_meta.launch">
+        <arg name="robot_id" value="$(arg robot_3_name)"/>
+        <arg name="x" value="$(arg robot_3_x_pos)"/>
+        <arg name="y" value="$(arg robot_3_y_pos)"/>
+        <arg name="yaw" value="$(arg robot_3_yaw"/>
+        <arg name="bid_topic" value="/bid"/>
+        <arg name="new_goal_topic" value="/new_goal"/>
+        <arg name="confirmation_topic" default="/confirmation"/>
+        <arg name="noise" value="$(arg sensor_noise)"/>
+        <arg name="false_positive" value="false"/>
+        <arg name="false_positive_prob" default="$(arg false_positive_prob)"/>
+    </include>
+    <include file="$(find robot_meta)/launch/robot_meta.launch">
+        <arg name="robot_id" value="$(arg robot_4_name)"/>
+        <arg name="x" value="$(arg robot_4_x_pos)"/>
+        <arg name="y" value="$(arg robot_4_y_pos)"/>
+        <arg name="yaw" value="$(arg robot_4_yaw"/>
+        <arg name="bid_topic" value="/bid"/>
+        <arg name="new_goal_topic" value="/new_goal"/>
+        <arg name="confirmation_topic" default="/confirmation"/>
+        <arg name="noise" value="$(arg sensor_noise)"/>
+        <arg name="false_positive" value="true"/>
+        <arg name="false_positive_prob" default="$(arg false_positive_prob)"/>
+    </include>
+
+    <!-- launch global management nodes-->
+
+    <node pkg="map_transformer" type="map_transformer_node.py" name="map_transformer" output="screen"/>
+
+    <node pkg="robot_pose_publisher" type="PosePublisher.py" name="robot_pose_publisher" output="screen"/>
+
+    <node pkg="goal_manager" type="GoalManager.py" name="goal_manager" output="screen">
+        <param name="subjective_logic_operator" value="$(arg sl_operator)"/>
+        <param name="sl_threshold" value="$(arg sl_threshold)"/>
+        <param name="sl_classpath" value="$(arg sl_classpath)"/>
+    </node>
+
+    <node pkg="dirt_generator" type="DirtGenerator.py" name="dirt_generator" output="screen">
+        <param name="seed" value="$(arg gen_seed)"/>
+        <param name="spawn_interval" value="$(arg spawn_interval)"/>
+    </node>
+
+    <include file="$(find task_allocator)/launch/task_allocator.launch">
+        <arg name="bid_topic" value="/bid"/>
+        <arg name="confirmation_topic" value="/confirmation"/>
+    </include>
+</launch>

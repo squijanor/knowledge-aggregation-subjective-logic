@@ -1,0 +1,65 @@
+<launch>
+    <arg name="x" default="-4"/>
+    <arg name="y" default="4.5"/>
+    <arg name="yaw" default="0"/>
+    <arg name="robot_id"/>
+    <arg name="map_file" default="$(find robot_meta)/maps/reference_map.yaml"/>
+    <arg name="confirmation_topic" default="/confirmation" doc="global confirmation topic of task_allocator"/>
+    <arg name="bid_topic" default="/bid" doc="global proposal topic "/>
+    <arg name="new_goal_topic" default="/new_goal" doc="global discovered topic"/>
+    <arg name="robot_specifier" default=""/>
+    <arg name="noise" default="false"/>
+    <arg name="adaptive_scheduling" default="true"/>
+    <arg name="false_positive" default="false"/>
+    <arg name="false_positive_prob" default="0"/>
+
+    <group ns="$(arg robot_id)">
+
+        <!-- Map server -->
+        <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
+
+        <!-- AMCL -->
+        <include file="$(find turtlebot3_navigation)/launch/amcl.launch"/>
+
+        <param name="amcl/global_frame_id" value="map"/>
+        <param name="amcl/odom_frame_id" value="$(arg robot_id)/odom"/>
+        <param name="amcl/base_frame_id" value="$(arg robot_id)/base_link"/>
+        <param name="amcl/initial_pose_x" value="$(arg x)"/>
+        <param name="amcl/initial_pose_y" value="$(arg y)"/>
+        <param name="amcl/initial_pose_a" value="$(arg yaw)"/>
+
+        <!-- launch "robot internals": move_base + planner, ... -->
+        <include file="$(find robot_meta)/launch/move_base.launch">
+            <arg name="x" value="$(arg x)"/>
+            <arg name="y" value="$(arg y)"/>
+            <arg name="yaw" value="$(arg yaw)"/>
+            <arg name="robot_id" value="$(arg robot_id)"/>
+            <arg name="noise" value="$(arg noise)"/>
+        </include>
+
+        <!-- launch custom nodes -->
+        <node pkg="bidder" type="Bidder.py" name="bidder" output="screen">
+            <param name="robot_id" value="$(arg robot_id)"/>
+            <param name="adaptive_scheduling" value="$(arg adaptive_scheduling)"/>
+            <remap to="$(arg bid_topic)" from="bid"/>
+            <remap to="$(arg new_goal_topic)" from="new_goal"/>
+        </node>
+
+        <node pkg="task_manager" type="TaskManager.py" name="task_manager" output="screen">
+            <param name="robot_id" type="str" value="$(arg robot_id)"/>
+            <param name="initial_x" type="double" value="$(arg x)"/>
+            <param name="initial_y" type="double" value="$(arg y)"/>
+            <remap to="$(arg confirmation_topic)" from="confirmation"/>
+        </node>
+
+        <node pkg="task_executor" type="TaskExecutor.py" name="task_executor" output="screen">
+        </node>
+
+        <node pkg="dirt_detection" type="dirt_detection" name="dirt_detection" output="screen" respawn="true">
+            <param name="robot_specifier" value="$(arg robot_id)"/>
+            <remap from="/$(arg robot_specifier)/detected_dirt" to="/detected_dirt"/>
+            <param name="false_positive" value="$(arg false_positive)"/>
+            <param name="false_positive_prob" value="$(arg false_positive_prob)"/>
+        </node>
+    </group>
+</launch>

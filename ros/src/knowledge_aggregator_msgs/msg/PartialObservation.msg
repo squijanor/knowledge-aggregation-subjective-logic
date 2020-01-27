@@ -1,0 +1,1 @@
+SO[] partial_observation

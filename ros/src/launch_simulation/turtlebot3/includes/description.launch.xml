@@ -1,0 +1,7 @@
+<launch>
+  <arg name="model"/>
+  <arg name="noise"/>
+  <arg name="robot_description_location" default="$(find launch_simulation)/turtlebot3/turtlebot3_$(arg model).urdf.xacro"/>
+  <arg name="urdf_file" default="$(find xacro)/xacro --inorder '$(arg robot_description_location)'" />
+  <param name="robot_description" command="$(arg urdf_file)" />
+</launch>

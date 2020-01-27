@@ -1,0 +1,6 @@
+geometry_msgs/Pose pose
+---
+float64 belief
+float64 disbelief
+float64 uncertainty
+float64 expected_probability

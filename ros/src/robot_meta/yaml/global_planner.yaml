@@ -1,0 +1,4 @@
+GlobalPlanner:
+  #allow_unknown: true
+  default_tolerance: 0.4
+  cost_factor: 0.55

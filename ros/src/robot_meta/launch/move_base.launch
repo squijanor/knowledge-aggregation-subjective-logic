@@ -1,0 +1,49 @@
+<launch>
+
+    <arg name="x"/>
+    <arg name="y"/>
+    <arg name="yaw"/>
+    <arg name="robot_id"/>
+    <arg name="robot_specifier" default=""/>
+    <!-- Arguments -->
+    <arg name="model" value="$(optenv TURTLEBOT3_MODEL burger)" doc="model type [burger, waffle, waffle_pi]"/>
+    <arg name="noise" default="false"/>
+
+    <!-- Turtlebot3 -->
+    <include file="$(find launch_simulation)/turtlebot3/turtlebot3_remote.launch">
+        <arg name="noise" value="$(arg noise)"/>
+        <arg name="model" value="burger"/>
+        <arg name="multi_robot_name"
+             value="$(arg robot_id)"/> <!-- Used as tf_prefix for robot state publisher (transforms)-->
+    </include>
+
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+
+        <remap from="scan" to="/$(arg robot_id)/scan"/>
+        <remap from="odom" to="/$(arg robot_id)/odom"/>
+        <remap from="cmd_vel" to="/$(arg robot_id)/cmd_vel"/>
+
+        <param name="base_global_planner" value="global_planner/GlobalPlanner"/>
+        <rosparam file="$(find robot_meta)/yaml/global_planner.yaml" command="load"/>
+
+        <rosparam file="$(find robot_meta)/yaml/move_base.yaml" command="load"/>
+        <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/>
+        <rosparam file="$(find robot_meta)/yaml/dwa_local_planner.yaml" command="load"/>
+
+        <rosparam file="$(find robot_meta)/yaml/common_costmap.yaml" command="load" ns="global_costmap"/>
+        <rosparam file="$(find robot_meta)/yaml/global_costmap.yaml" command="load"/>
+        <param name="global_costmap/obstacle_layer/base_scan/topic" value="/$(arg robot_id)/scan"/>
+        <param name="global_costmap/obstacle_layer/base_scan/sensor_frame" value="$(arg robot_id)/base_scan"/>
+        <param name="global_costmap/robot_base_frame" value="$(arg robot_id)/base_link"/>
+        <param name="global_costmap/global_frame" value="map"/>
+        <param name="global_costmap/static_layer/map" value="/$(arg robot_id)/static_map"/>
+
+        <rosparam file="$(find robot_meta)/yaml/common_costmap.yaml" command="load" ns="local_costmap"/>
+        <rosparam file="$(find robot_meta)/yaml/local_costmap.yaml" command="load"/>
+        <param name="local_costmap/obstacle_layer/base_scan/topic" value="/$(arg robot_id)/scan"/>
+        <param name="local_costmap/obstacle_layer/base_scan/sensor_frame" value="$(arg robot_id)/base_scan"/>
+        <param name="local_costmap/robot_base_frame" value="$(arg robot_id)/base_link"/>
+        <param name="local_costmap/global_frame" value="$(arg robot_id)/odom"/>
+    </node>
+
+</launch>

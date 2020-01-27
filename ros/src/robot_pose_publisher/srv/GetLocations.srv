@@ -1,0 +1,3 @@
+bool dummy
+---
+geometry_msgs/Pose[] locations
